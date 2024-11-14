@@ -1,0 +1,31 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: tenants
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  ref:
+    branch: main
+  secretRef:
+    name: flux-system
+  url: ssh://git@github.com/kilianops/tenants.git
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: tenants
+  namespace: flux-system
+spec:
+  path: ./
+  interval: 5m0s
+  serviceAccountName: kustomize-controller
+  dependsOn:
+    - name: system-charts
+  sourceRef:
+    name: tenants
+    kind: GitRepository
+  wait: true
+  prune: true
+  timeout: 5m0s
